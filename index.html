@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHA-256 Number Tracker</title>
+    <script>
+        // Function to calculate SHA-256 hash
+        async function calculateSHA256(input) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(input);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
+        // Function to handle the form submission
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            const numberInput = document.getElementById('numberInput').value;
+            if (!numberInput.trim()) {
+                alert('Please enter a number.');
+                return;
+            }
+
+            const hash = await calculateSHA256(numberInput);
+
+            const historyList = document.getElementById('history');
+            const listItem = document.createElement('li');
+            listItem.textContent = `Number: ${numberInput} - SHA-256: ${hash}`;
+            historyList.appendChild(listItem);
+
+            document.getElementById('numberInput').value = '';
+        }
+    </script>
+</head>
+<body>
+    <h1>SHA-256 Number Tracker</h1>
+    <form onsubmit="handleFormSubmit(event)">
+        <label for="numberInput">Enter a number:</label>
+        <input type="text" id="numberInput" placeholder="Enter number" required>
+        <button type="submit">Calculate SHA-256</button>
+    </form>
+
+    <h2>History</h2>
+    <ul id="history"></ul>
+</body>
+</html>
