@@ -12,7 +12,7 @@
             const hashBuffer = await crypto.subtle.digest('SHA-256', data);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return hashHex;
+            return hashHex.match(/.{1,8}/g).join(' '); // Add spaces every 8 characters
         }
 
         // Function to handle the form submission
@@ -31,13 +31,15 @@
             listItem.textContent = `Number: ${numberInput} - SHA-256: ${hash}`;
             historyList.appendChild(listItem);
 
-            saveToTextFile(`Number: ${numberInput} - SHA-256: ${hash}\n`);
-
             document.getElementById('numberInput').value = '';
         }
 
-        // Function to save data to a text file
-        function saveToTextFile(data) {
+        // Function to save all history to a text file
+        function saveHistoryToFile() {
+            const historyList = document.getElementById('history');
+            const items = Array.from(historyList.children).map(item => item.textContent);
+            const data = items.join('\n');
+
             const blob = new Blob([data], { type: 'text/plain' });
             const a = document.createElement('a');
             const url = URL.createObjectURL(blob);
@@ -79,6 +81,8 @@
 
     <h2>History</h2>
     <ul id="history"></ul>
+
+    <button onclick="saveHistoryToFile()">Save History to File</button>
 
     <h2>Load History</h2>
     <input type="file" id="fileInput" accept=".txt" onchange="loadFromFile(event)">
