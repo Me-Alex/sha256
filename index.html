@@ -31,7 +31,41 @@
             listItem.textContent = `Number: ${numberInput} - SHA-256: ${hash}`;
             historyList.appendChild(listItem);
 
+            saveToTextFile(`Number: ${numberInput} - SHA-256: ${hash}\n`);
+
             document.getElementById('numberInput').value = '';
+        }
+
+        // Function to save data to a text file
+        function saveToTextFile(data) {
+            const blob = new Blob([data], { type: 'text/plain' });
+            const a = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            a.href = url;
+            a.download = 'sha256_history.txt';
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Function to load data from a text file
+        function loadFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const content = e.target.result;
+                const lines = content.split('\n').filter(line => line.trim());
+                const historyList = document.getElementById('history');
+                lines.forEach(line => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = line;
+                    historyList.appendChild(listItem);
+                });
+            };
+            reader.readAsText(file);
         }
     </script>
 </head>
@@ -45,5 +79,8 @@
 
     <h2>History</h2>
     <ul id="history"></ul>
+
+    <h2>Load History</h2>
+    <input type="file" id="fileInput" accept=".txt" onchange="loadFromFile(event)">
 </body>
 </html>
